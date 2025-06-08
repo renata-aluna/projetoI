@@ -1,18 +1,22 @@
+export type Status = "ativo" | "inativo" | "suspenso"
+
 export class UsuarioEntity {
   id: number
   nome: string
   cpf: string
-  ativo: boolean
-  categoria_Id: number
-  curso_Id: number
+  email: string
+  ativo: Status
+  categoriaId: number
+  cursoId: number
 
-  constructor(id: number | undefined, nome: string, cpf: string, ativo: boolean, categoria_Id: number, curso_Id: number){
+  constructor(id: number | undefined, nome: string, cpf: string, email:string, ativo: Status, categoriaId: number, cursoId: number){
     this.id = id ?? this.gerarId()
     this.nome = nome
     this.cpf = cpf
+    this.email = email
     this.ativo = ativo
-    this.categoria_Id = categoria_Id
-    this.curso_Id = curso_Id
+    this.categoriaId = categoriaId
+    this.cursoId = cursoId
   }
 
   private gerarId(): number {
