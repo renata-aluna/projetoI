@@ -32,7 +32,7 @@ export class UsuarioService{
         }
 
         if (!usuarioExistente) {
-        throw new Error("Usuário não encontrado.");
+            throw new Error("Usuário não encontrado.")
         }
         const usuarioNovo = new UsuarioEntity(usuarioExistente.id, data.nome, data.cpf, data.email, data.ativo, data.categoriaId, data.cursoId)
         return this.usuarioRepository.atualizaUsuario(cpf, usuarioNovo)
