@@ -1,5 +1,3 @@
-import { idText } from "typescript"
-
 export class LivroEntity{
     id:number
     titulo:string
@@ -7,18 +5,18 @@ export class LivroEntity{
     editora:string
     edicao:string
     isbn:string
-    categoria_id:number
+    categoriaId:number
 
-    constructor(id:number, titulo:string, autor:string, editora: string, edicao:string, isbn:string, categoria_id:number){
+    constructor(id:number | undefined, titulo:string, autor:string, editora: string, edicao:string, isbn:string, categoriaId:number){
         this.id = id ?? this.gerarId()
         this.titulo =titulo
         this.autor = autor
         this.editora = editora
         this.edicao = edicao
         this.isbn = isbn
-        this.categoria_id = categoria_id
+        this.categoriaId = categoriaId
     }
-
+    
     private gerarId(): number {
         return parseInt((Date.now() / 100).toString(), 10)
     
