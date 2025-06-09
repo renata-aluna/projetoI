@@ -1,23 +1,31 @@
 import { ExemplarEntity } from "../models/exemplarEntity";
 import { ExemplarRepository } from "../repository/exemplarRepository";
+import { LivroRepository } from "../repository/livroRepository";
 
 export class ExemplarService{
     private exemplarRepository = ExemplarRepository.getInstance()
+    private livroRepository = LivroRepository.getInstance()
 
     novoExemplar(data: any): ExemplarEntity{
-        if(!data.livroId || !data.quantidade || data.disponivel === undefined){
-            throw new Error("Campos obrigatórios não preenchidos")    
+        if (data.livroId === undefined || data.quantidade === undefined || data.quantidadeEmprestada === undefined) {
+            throw new Error("Campos obrigatórios não preenchidos");
         }
-        const quantidadeEmprestada = data.quantidadeEmprestada || 0;
 
-        if(data.quantidade < 0 || quantidadeEmprestada < 0){
-            throw new Error("Quantidades não podem ser negativas")
+        const livro = this.livroRepository.buscaId(data.livroId);
+        if (!livro) {
+            throw new Error("Livro vinculado não encontrado.");
         }
-        if(quantidadeEmprestada > data.quantidade){
+
+        if(data.quantidadeEmprestada > data.quantidade){
             throw new Error("Quantidade emprestada não pode ser maior que a quantidade total")
         }
-        const exemplar = new ExemplarEntity(undefined, data.livroId, data.quantidade, quantidadeEmprestada, data.disponivel)
+
+        const disponivel = data.quantidade > data.quantidadeEmprestada;
+        
+        const exemplar = new ExemplarEntity(undefined, data.livroId, data.quantidade, data.quantidadeEmprestada, disponivel)
+        
         this.exemplarRepository.cadastraExemplar(exemplar)
+        
         return exemplar
     }
 
@@ -31,13 +39,27 @@ export class ExemplarService{
 
     atualizarExemplar(codigo: number, data: any){
         const exemplarExistente = this.exemplarRepository.buscaExemplarPorCodigo(codigo)
-        if(!data.livroId || !data.quantidade || !data.quantidadeEmprestada || !data.disponivel){
-            throw new Error("Campos obrigatórios não preenchidos")    
+
+        if (data.livroId === undefined || data.quantidade === undefined || data.quantidadeEmprestada === undefined) {
+            throw new Error("Campos obrigatórios não preenchidos");
         }
+
         if(!exemplarExistente){
             throw new Error ("Exemplar não encontrado.")
         }
-        const exemplarNovo = new ExemplarEntity(exemplarExistente.codigo,data.livroId, data.quantidade, data.quantidadeEmprestada, data.disponivel )
+
+        const livro = this.livroRepository.buscaId(data.livroId);
+        if (!livro) {
+            throw new Error("Livro vinculado não encontrado.");
+        }
+
+        if(data.quantidadeEmprestada > data.quantidade){
+            throw new Error("Quantidade emprestada não pode ser maior que a quantidade total")
+        }
+
+        const disponivel = data.quantidade > data.quantidadeEmprestada;
+        
+        const exemplarNovo = new ExemplarEntity(exemplarExistente.codigo,data.livroId, data.quantidade, data.quantidadeEmprestada, disponivel)
         return this.exemplarRepository.atualizaExemplar(codigo, exemplarNovo)
     }
     removerExemplar(codigo: number){
