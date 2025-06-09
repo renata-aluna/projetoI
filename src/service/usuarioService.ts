@@ -10,7 +10,7 @@ export class UsuarioService{
             throw new Error("Campos obrigatórios não preenchidos")      
         }
 
-        const usuario = new UsuarioEntity(undefined, data.nome, data.cpf, data.email, data.ativo, data.categoriaId, data.cursoId)
+        const usuario = new UsuarioEntity(undefined, data.nome, data.cpf, data.email, "ativo", data.categoriaId, data.cursoId)
         this.usuarioRepository.cadastraUsuario(usuario)
 
         return usuario
