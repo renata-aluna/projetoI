@@ -25,6 +25,10 @@ export class LivroRepository{
         return this.livroLista.find(l => l.isbn === isbn)
     }
 
+    buscaId(id: number): LivroEntity | undefined{
+        return this.livroLista.find(l => l.id === id)
+    }
+
     atualizaLivro(isbn: string, novosDados: LivroEntity){
         const index = this.livroLista.findIndex( l => l.isbn === isbn)
         if(index === -1){

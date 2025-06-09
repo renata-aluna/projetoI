@@ -22,7 +22,7 @@ export class ExemplarRepository{
         return this.exemplarLista
     }
 
-    buscaExemplarPorCodigo(codigo:number): ExemplarEntity | undefined{
+    buscaExemplarPorCodigo(codigo: number): ExemplarEntity | undefined{
         return this.exemplarLista.find(e => e.codigo === codigo)
     }
 

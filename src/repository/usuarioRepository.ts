@@ -25,6 +25,10 @@ export class UsuarioRepository{
         return this.usuarioLista.find(u => u.cpf === cpf)
     }
 
+    buscaId(id:number): UsuarioEntity | undefined{
+        return this.usuarioLista.find(u => u.id === id)
+    }
+
     atualizaUsuario(cpf: string, novosDados: UsuarioEntity) {
         const index = this.usuarioLista.findIndex(u => u.cpf === cpf)
         if (index === -1) {
