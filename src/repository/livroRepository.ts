@@ -39,9 +39,9 @@ export class LivroRepository{
 
     removeLivro(isbn: string): void {
         const index = this.livroLista.findIndex(l => l.isbn === isbn)
-        if(index !== -1){
-            this.livroLista.splice(index, 1)
+        if(index === -1){
+            throw new Error("Livro não encontrado!")
         }
-        throw new Error("Livro não encontrado!")
+        this.livroLista.splice(index, 1)
     }
 }
