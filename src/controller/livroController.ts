@@ -33,13 +33,18 @@ export class LivroController{
     buscaLivroPorIsbn(req: Request, res: Response): void {
         try{
             const livro = this.livroService.buscarLivroPorIsbn(req.params.isbn)
-            res.status(200).json(livro);
+            if (!livro) {
+                res.status(404).json({ message: "ISBN inválido ou inexistente." });
+            } else {
+                res.status(200).json(livro);
+            }
+
         } catch(error: unknown){
-            let message: string = "Não foi possível encontrar livro por este ISBN";
+            let message: string = "Erro ao buscar o livro pelo ISBN";
             if(error instanceof Error){
                 message = error.message;
             }
-            res.status(400).json({message: message});
+            res.status(500).json({message: message});
         }
     }
 
