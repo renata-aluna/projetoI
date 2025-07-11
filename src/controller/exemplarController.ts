@@ -33,13 +33,18 @@ export class ExemplarController{
         try{
             const codigoNum = parseInt(req.params.codigo)
             const exemplar = this.exemplarService.buscarExemplarPorCodigo(codigoNum)
-            res.status(200).json(exemplar);
+            if (!exemplar) {
+                res.status(404).json({ message: "Código inválido ou inexistente." });
+            } else {
+                res.status(200).json(exemplar);
+            }
+            
         } catch(error: unknown){
-            let message: string = "Não foi possível encontrar o exemplar por este codigo";
+            let message: string = "Erro ao buscar o exemplar";
             if(error instanceof Error){
                 message = error.message;
             }
-            res.status(400).json({message: message});
+            res.status(500).json({message: message});
         }
     }
 
