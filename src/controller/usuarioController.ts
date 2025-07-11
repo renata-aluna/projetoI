@@ -33,13 +33,18 @@ export class UsuarioController{
     buscaUsuarioPorCpf(req: Request, res: Response): void {
         try{
             const usuario = this.usuarioService.buscarUsuarioPorCpf(req.params.cpf)
-            res.status(200).json(usuario);
+            if (!usuario) {
+                res.status(404).json({ message: "CPF inválido ou inexistente." });
+            } else {
+                res.status(200).json(usuario);
+            }
+            
         } catch(error: unknown){
-            let message: string = "Não foi possível encontrar usuário por este CPF";
+            let message: string = "Erro ao buscar o usuário";
             if(error instanceof Error){
                 message = error.message;
             }
-            res.status(400).json({message: message});
+            res.status(500).json({message: message});
         }
     }
 
