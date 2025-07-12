@@ -42,6 +42,7 @@ app.delete("/library/estoque/:codigo", exemplarController.removeExemplar.bind(ex
 app.post("/library/emprestimos", emprestimoController.cadastrarEmprestimo.bind(emprestimoController))
 app.get("/library/emprestimos", emprestimoController.listaEmprestimo.bind(emprestimoController))
 app.put("/library/emprestimos/:id/devolucao", emprestimoController.DevolveEmprestimo.bind(emprestimoController))
+app.put("/library/emprestimos/verificar-suspensoes", emprestimoController.verificarSuspensoesAutomaticas.bind(emprestimoController));
 
 app.get("/library/catalogos/categorias-usuario", categoriaUsuarioController.listaCategoriasUsuario.bind(categoriaUsuarioController))
 app.get("/library/catalogos/categorias-livro", categoriaLivroController.listaCategoriasLivro.bind(categoriaLivroController))
