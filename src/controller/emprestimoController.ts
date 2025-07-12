@@ -49,4 +49,17 @@ export class EmprestimoController{
             })
         }
     }
+
+    verificarSuspensoesAutomaticas(req: Request, res: Response) {
+        try {
+            this.emprestimoService.validarSuspensoesAutomaticasEmLote()
+            res.status(200).json({ message: "Verificação dos empréstimo - suspensões aplicadas com sucesso." })
+        } catch (error: unknown) {
+            let message = "Erro ao realizar verificação"
+            if (error instanceof Error) {
+                message = error.message
+            }
+            res.status(400).json({ message })
+        }
+    }
 }
