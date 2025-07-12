@@ -146,7 +146,30 @@
                     }
                 }
                 this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
+                }
             }
         }
-    }
+
+         public validarSuspensoesAutomaticasEmLote(loteTamanho: number = 1000): void {
+            const emprestimos = this.emprestimoRepository.listaEmprestimos()
+            const emprestimosAbertos = emprestimos.filter(e => !e.dataEntrega)
+
+            for (let i = 0; i < emprestimosAbertos.length; i += loteTamanho) {
+                const lote = emprestimosAbertos.slice(i, i + loteTamanho)
+
+                lote.forEach((emprestimo) => {
+                    const hoje = new Date()
+                    const dataDevolucao = new Date(emprestimo.dataDevolucao)
+
+                    if (hoje > dataDevolucao) {
+                        const diasAtraso = Math.ceil((hoje.getTime() - dataDevolucao.getTime()) / (1000 * 60 * 60 * 24))
+                        emprestimo.dataEntrega = hoje
+                        this.colocarSuspensao(emprestimo, diasAtraso)
+                        this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo)
+                    }
+                })
+            }
+        }
+
+    
 }
