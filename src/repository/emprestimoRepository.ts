@@ -1,4 +1,4 @@
-import { EmprestimoEntity } from "../models/emprestimoEntity";
+import { EmprestimoEntity } from "../models/entity/emprestimoEntity";
 
 export class EmprestimoRepository {
     private static instance: EmprestimoRepository;
