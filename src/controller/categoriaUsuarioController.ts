@@ -1,19 +1,31 @@
-import { Request, Response } from "express";
+import { Controller, Get, Res, Route, Tags, TsoaResponse } from "tsoa"
 import { CategoriaUsuarioService } from "../service/categoriaUsuarioService";
+import { CategoriaUsuarioEntity } from "../models/entity/categoriaUsuarioEntity"
+import { BasicResponseDto } from "../models/dto/basicResponseDto"
 
-export class CategoriaUsuarioController{
-    private categoriaUsuarioService  = new CategoriaUsuarioService()
+@Route("catalogos")
+@Tags("categorias-usuario")
+export class CategoriaUsuarioController extends Controller {
+  private categoriaUsuarioService = new CategoriaUsuarioService()
 
-    listaCategoriasUsuario(req: Request, res: Response): void {
-        try{
-            const lista = this.categoriaUsuarioService.listarCategoriasUsuarios()
-            res.status(200).json(lista);
-        } catch(error: unknown){
-            let message: string = "Não foi possível listar as categorias do usuário";
-            if(error instanceof Error){
-                message = error.message;
-            }
-            res.status(400).json({message: message});
-        }
+  @Get("categorias-usuario")
+  public async listarCategoriasUsuario(
+    @Res() success: TsoaResponse<200, BasicResponseDto>,
+    @Res() error: TsoaResponse<400, BasicResponseDto>
+  ) {
+    try {
+      const categorias: CategoriaUsuarioEntity[] =
+        await this.categoriaUsuarioService.listarCategoriasUsuarios()
+
+      return success(
+        200,
+        new BasicResponseDto("Categorias de usuário listadas com sucesso!", categorias)
+      )
+    } catch (err: any) {
+      return error(
+        400,
+        new BasicResponseDto(err.message || "Erro ao listar categorias", undefined)
+      )
     }
+  }
 }
