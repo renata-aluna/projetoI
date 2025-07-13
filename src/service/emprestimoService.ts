@@ -13,7 +13,7 @@
         private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance()
 
         async novoEmprestimo(data: any): Promise<EmprestimoEntity>{
-            if (!data.usuarioId  || !data.dataEmprestimo) {
+            if (!data.usuarioId  || !data.estoqueId) {
                 throw new Error("Dados obrigatórios do empréstimo ausentes.")
             }
 
@@ -22,6 +22,7 @@
                 throw new Error("Usuário inativo/suspenso ou inexistente");
             }
 
+            const dataEmprestimo = data.dataEmprestimo ? new Date(data.dataEmprestimo) : new Date()
             const exemplar = await this.exemplarRepository.buscaExemplarPorCodigo(data.estoqueId);
             if (!exemplar) {
                 throw new Error("Exemplar não existe");
@@ -60,10 +61,12 @@
             throw new Error("Limite de empréstimos atingido");
             }
 
+            const dataPrevista = new Date(dataEmprestimo.getTime() + diasEmprestimo * 86400000)
             const dataEmp = new Date(data.dataEmprestimo);
-            const dataPrevista = new Date(dataEmp.getTime() + diasEmprestimo * 86400000)
 
-            const emprestimo = new EmprestimoEntity(undefined, data.usuarioId, data.estoqueId, data.dataEmprestimo, dataPrevista, null, 0, null);
+            const dataPrevistaMySQL = dataPrevista.toISOString().replace('T', ' ').replace(/\..+/, '')
+            
+            const emprestimo = new EmprestimoEntity(undefined, data.usuarioId, data.estoqueId, dataEmprestimo, dataPrevista, null, 0, null);
 
             await this.emprestimoRepository.cadastraEmprestimo(emprestimo);
 

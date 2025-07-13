@@ -1,65 +1,89 @@
-import { Request, Response } from "express";
+import { Body, Controller, Get, Path, Post, Put, Res, Route, Tags, TsoaResponse } from "tsoa"
 import { EmprestimoService } from "../service/emprestimoService";
+import { EmprestimoCreateDto } from "../models/dto/emprestimoDto/emprestimoCreateDto"
+import { EmprestimoDevolucaoDto } from "../models/dto/emprestimoDto/emprestimoDevDto"
+import { BasicResponseDto } from "../models/dto/basicResponseDto"
 
-export class EmprestimoController{
-    private emprestimoService = new EmprestimoService()
+@Route("emprestimos")
+@Tags("Emprestimos")
+export class EmprestimoController extends Controller {
+    private emprestimoService = new EmprestimoService();
 
-    cadastrarEmprestimo(req: Request, res: Response) {
-        try{    
-            const emprestimo = this.emprestimoService.novoEmprestimo(req.body)
-            res.status(201).json(emprestimo)
-        } catch(error: unknown){
-            let message: string = "Erro ao cadastrar emprestimo"
-            if(error instanceof Error){
-                message = error.message
-            }
-            res.status(400).json({
-                message: message
-            })
-        }
-    }
-
-    listaEmprestimo(req: Request, res: Response) {
-        try{    
-            const emprestimos = this.emprestimoService.listarEmprestimo()
-            res.status(201).json(emprestimos)
-        } catch(error: unknown){
-            let message: string = "Erro ao listar emprestimos"
-            if(error instanceof Error){
-                message = error.message
-            }
-            res.status(400).json({
-                message: message
-            })
-        }
-    }
-
-     DevolveEmprestimo(req: Request, res: Response) {
-        try{    
-            const idNum = parseInt(req.params.id)
-            const emprestimos = this.emprestimoService.realizarDevolucao(idNum, req.body)
-            res.status(201).json(emprestimos)
-        } catch(error: unknown){
-            let message: string = "Erro ao listar emprestimos"
-            if(error instanceof Error){
-                message = error.message
-            }
-            res.status(400).json({
-                message: message
-            })
-        }
-    }
-
-    verificarSuspensoesAutomaticas(req: Request, res: Response) {
+    @Post()
+    public async cadastrarEmprestimo(
+        @Body() body: EmprestimoCreateDto,
+        @Res() createdResponse: TsoaResponse<201, BasicResponseDto>,
+        @Res() badRequestResponse: TsoaResponse<400, BasicResponseDto>,
+        @Res() conflictResponse: TsoaResponse<409, BasicResponseDto>
+    ) {
         try {
-            this.emprestimoService.validarSuspensoesAutomaticasEmLote()
-            res.status(200).json({ message: "Verificação dos empréstimo - suspensões aplicadas com sucesso." })
-        } catch (error: unknown) {
-            let message = "Erro ao realizar verificação"
-            if (error instanceof Error) {
-                message = error.message
+            const emprestimo = await this.emprestimoService.novoEmprestimo(body)
+            return createdResponse(201, new BasicResponseDto("Empréstimo cadastrado com sucesso", emprestimo))
+        } catch (error: any) {
+            if (error.message.includes("já existe")) {
+                return conflictResponse(409, new BasicResponseDto(error.message, undefined));
             }
-            res.status(400).json({ message })
+            return badRequestResponse(400, new BasicResponseDto(error.message, undefined));
+        }
+    }
+
+    @Get()
+    public async listarEmprestimos(
+        @Res() successResponse: TsoaResponse<200, BasicResponseDto>,
+        @Res() errorResponse: TsoaResponse<500, BasicResponseDto>
+    ) {
+        try {
+            const emprestimos = await this.emprestimoService.listarEmprestimo()
+            return successResponse(200, new BasicResponseDto("Lista de empréstimos recuperada com sucesso", emprestimos))
+        } catch (error: any) {
+        return errorResponse(500, new BasicResponseDto(error.message, undefined))
+        }
+    }
+
+    @Put("{id}/devolucao")
+    public async realizarDevolucao(
+        @Path() id: number,
+        @Body() body: EmprestimoDevolucaoDto,
+        @Res() successResponse: TsoaResponse<200, BasicResponseDto>,
+        @Res() notFoundResponse: TsoaResponse<404, BasicResponseDto>,
+        @Res() badRequestResponse: TsoaResponse<400, BasicResponseDto>,
+        @Res() conflictResponse: TsoaResponse<409, BasicResponseDto>
+    ) {
+        try {
+            const emprestimo = await this.emprestimoService.realizarDevolucao(id, {
+                dataEntrega: body.dataEntrega?.toISOString() || new Date().toISOString()
+            });
+            return successResponse(200, new BasicResponseDto(
+                "Devolução registrada com sucesso",
+                emprestimo
+            ));
+        } catch (error: any) {
+            if (error.message.includes("não encontrado")) {
+                return notFoundResponse(404, new BasicResponseDto(error.message, undefined))
+            }
+            if (error.message.includes("já foi devolvido")) {
+                return conflictResponse(409, new BasicResponseDto(error.message, undefined))
+            }
+            return badRequestResponse(400, new BasicResponseDto(error.message, undefined))
+        }
+    }
+
+    @Post("verificar-suspensoes")
+    public async verificarSuspensoesAutomaticas(
+        @Res() successResponse: TsoaResponse<200, BasicResponseDto>,
+        @Res() errorResponse: TsoaResponse<500, BasicResponseDto>
+    ) {
+        try {
+            await this.emprestimoService.validarSuspensoesAutomaticasEmLote();
+            return successResponse(200, new BasicResponseDto(
+                "Verificação de suspensões automáticas concluída",
+                undefined
+            ));
+        } catch (error: any) {
+            return errorResponse(500, new BasicResponseDto(
+                "Erro ao verificar suspensões: " + error.message,
+                undefined
+            ));
         }
     }
 }

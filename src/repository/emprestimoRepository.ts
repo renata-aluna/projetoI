@@ -47,14 +47,15 @@ export class EmprestimoRepository {
         `
         
         try {
+            const formatDate = (date: Date | null) => date ? date.toISOString().replace('T', ' ').replace(/\..+/, '') : null
             const result = await executarComandoSQL(query, [
                 emprestimo.usuarioId,
                 emprestimo.estoqueId,
-                emprestimo.dataEmprestimo,
-                emprestimo.dataDevolucao,
-                emprestimo.dataEntrega,
+                formatDate(emprestimo.dataEmprestimo),
+                formatDate(emprestimo.dataDevolucao),
+                formatDate(emprestimo.dataEntrega),
                 emprestimo.diasAtraso,
-                emprestimo.suspensaoAte
+                formatDate(emprestimo.suspensaoAte)
             ])
 
             return new EmprestimoEntity(
