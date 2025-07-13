@@ -1,19 +1,23 @@
-import { Request, Response } from "express";
+import { Controller, Get, Res, Route, Tags, TsoaResponse } from "tsoa"
 import { CursoService } from "../service/cursoService";
+import { CursoEntity } from "../models/entity/cursoEntity";
+import { BasicResponseDto } from "../models/dto/basicResponseDto";
 
-export class CursoController{
-    private cursoService = new CursoService()
+@Route("catalogos")
+@Tags("cursos")
+export class CursoController extends Controller {
+  private cursoService = new CursoService();
 
-    listarCursos(req: Request, res: Response): void {
-        try{
-            const lista = this.cursoService.listaCursos()
-            res.status(200).json(lista);
-        } catch(error: unknown){
-            let message: string = "Não foi possível listar os cursos";
-            if(error instanceof Error){
-                message = error.message;
-            }
-            res.status(400).json({message: message});
-        }
+  @Get("cursos")
+  public async listarCursos(
+    @Res() success: TsoaResponse<200, BasicResponseDto>,
+    @Res() error: TsoaResponse<400, BasicResponseDto>
+  ) {
+    try {
+      const cursos: CursoEntity[] = await this.cursoService.listaCursos();
+      return success(200, new BasicResponseDto("Cursos listados com sucesso!", cursos));
+    } catch (err: any) {
+      return error(400, new BasicResponseDto(err.message || "Erro ao listar cursos", undefined));
     }
+  }
 }

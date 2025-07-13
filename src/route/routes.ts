@@ -4,6 +4,8 @@
 import type { TsoaRoute } from '@tsoa/runtime';
 import {  fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { CursoController } from './../controller/cursoController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CategoriaUsuarioController } from './../controller/categoriaUsuarioController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CategoriaLivroController } from './../controller/categoriaLivroController';
@@ -40,6 +42,37 @@ export function RegisterRoutes(app: Router) {
 
 
     
+        const argsCursoController_listarCursos: Record<string, TsoaRoute.ParameterSchema> = {
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                error: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/catalogos/cursos',
+            ...(fetchMiddlewares<RequestHandler>(CursoController)),
+            ...(fetchMiddlewares<RequestHandler>(CursoController.prototype.listarCursos)),
+
+            async function CursoController_listarCursos(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsCursoController_listarCursos, request, response });
+
+                const controller = new CursoController();
+
+              await templateService.apiHandler({
+                methodName: 'listarCursos',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
         const argsCategoriaUsuarioController_listarCategoriasUsuario: Record<string, TsoaRoute.ParameterSchema> = {
                 success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
                 error: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
