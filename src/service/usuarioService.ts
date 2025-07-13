@@ -1,13 +1,15 @@
 import { UsuarioEntity } from "../models/entity/usuarioEntity"
-import { categoriasUsuario } from "../repository/categoriaUsuarioRepository";
+import { CategoriaUsuarioRepository } from "../repository/categoriaUsuarioRepository";
 import { cursos } from "../repository/cursoRepository";
 import { UsuarioRepository } from "../repository/usuarioRepository"
 
 export class UsuarioService{
     private usuarioRepository = UsuarioRepository.getInstance()
+    private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance();
+
     
 
-    novoUsuario(data: any): UsuarioEntity{
+    async novoUsuario(data: any): Promise <UsuarioEntity>{
         if (!data.nome || !data.cpf || !data.email || !data.categoriaId || !data.cursoId) {
             throw new Error("Campos obrigatórios não preenchidos")      
         }
@@ -20,7 +22,9 @@ export class UsuarioService{
         throw new Error("Esse CPF já foi utilizado.");
         }
 
-        if (!categoriasUsuario.find(categoria => categoria.id === data.categoriaId)){
+        const categorias = await this.categoriaUsuarioRepository.listar()
+        const categoriaEncontrada = categorias.some(c => c.id === data.categoriaId)
+        if (!categoriaEncontrada){
         throw new Error("Categoria não existe.");
         }
 
@@ -42,14 +46,16 @@ export class UsuarioService{
         return this.usuarioRepository.buscaCpf(cpf)
     }
 
-    atualizarUsuario(cpf: string, data:any){
+    async atualizarUsuario(cpf: string, data:any){
         const usuarioExistente = this.usuarioRepository.buscaCpf(cpf);
 
          if (!data.nome || !data.cpf || !data.email || !data.ativo || !data.categoriaId || !data.cursoId) {
             throw new Error("Campos obrigatórios não preenchidos")      
         }
 
-        if (!categoriasUsuario.find(categoria => categoria.id === data.categoriaId)){
+        const categorias = await this.categoriaUsuarioRepository.listar()
+        const categoriaEncontrada = categorias.some(c => c.id === data.categoriaId)
+        if (!categoriaEncontrada){
         throw new Error("Categoria não existe.");
         }
 

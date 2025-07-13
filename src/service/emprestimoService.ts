@@ -1,5 +1,5 @@
     import { EmprestimoEntity } from "../models/entity/emprestimoEntity";
-    import { categoriasUsuario } from "../repository/categoriaUsuarioRepository";
+    import { CategoriaUsuarioRepository } from "../repository/categoriaUsuarioRepository";
     import { EmprestimoRepository } from "../repository/emprestimoRepository";
     import { ExemplarRepository } from "../repository/exemplarRepository";
     import { LivroRepository } from "../repository/livroRepository";
@@ -10,8 +10,9 @@
         private usuarioRepository = UsuarioRepository.getInstance()
         private livroRepository = LivroRepository.getInstance()
         private exemplarRepository = ExemplarRepository.getInstance()
+        private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance()
 
-        novoEmprestimo(data: any): EmprestimoEntity{
+        async novoEmprestimo(data: any): Promise<EmprestimoEntity>{
             if (!data.usuarioId  || !data.dataEmprestimo) {
                 throw new Error("Dados obrigatórios do empréstimo ausentes.")
             }
@@ -35,7 +36,8 @@
             throw new Error("Livro não encontrado.")
             }
 
-            const categoria = categoriasUsuario.find(c => c.id === usuario.categoriaId);
+            const categorias = await this.categoriaUsuarioRepository.listar();
+            const categoria = categorias.find(c => c.id === usuario.categoriaId);
             if (!categoria) {
                 throw new Error("Categoria do usuário não encontrada.");
             }

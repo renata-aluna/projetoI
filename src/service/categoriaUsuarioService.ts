@@ -1,7 +1,9 @@
-import { categoriasUsuario } from "../repository/categoriaUsuarioRepository";
+import { CategoriaUsuarioRepository } from "../repository/categoriaUsuarioRepository"
+
+const categoriasUsuarioRepository = CategoriaUsuarioRepository.getInstance();
 
 export class CategoriaUsuarioService{
     listarCategoriasUsuarios(){
-        return categoriasUsuario
+        return categoriasUsuarioRepository.listar()
     }
 }
