@@ -22,7 +22,7 @@
                 throw new Error("Usuário inativo/suspenso ou inexistente");
             }
 
-            const exemplar = this.exemplarRepository.buscaExemplarPorCodigo(data.estoqueId);
+            const exemplar = await this.exemplarRepository.buscaExemplarPorCodigo(data.estoqueId);
             if (!exemplar) {
                 throw new Error("Exemplar não existe");
             }
@@ -31,7 +31,7 @@
                 throw new Error("Exemplar não disponível para empréstimos")
             }
 
-            const livro = this.livroRepository.buscaId(exemplar.livroId)
+            const livro = await this.livroRepository.buscaId(exemplar.livroId)
             if (!livro) {
             throw new Error("Livro não encontrado.")
             }
@@ -55,8 +55,7 @@
                 throw new Error("Categoria não permitida para empréstimo");
             }
 
-            const emprestimosAtivos = this.emprestimoRepository.listaEmprestimos().filter(e => e.usuarioId === data.usuarioId && !e.dataEntrega);
-
+            const emprestimosAtivos = (await this.emprestimoRepository.listaEmprestimos()).filter(e => e.usuarioId === data.usuarioId && !e.dataEntrega)
             if (emprestimosAtivos.length >= limiteLivros) {
             throw new Error("Limite de empréstimos atingido");
             }
@@ -66,22 +65,22 @@
 
             const emprestimo = new EmprestimoEntity(undefined, data.usuarioId, data.estoqueId, data.dataEmprestimo, dataPrevista, null, 0, null);
 
-            this.emprestimoRepository.cadastraEmprestimo(emprestimo);
+            await this.emprestimoRepository.cadastraEmprestimo(emprestimo);
 
             exemplar.quantidadeEmprestada++;
             exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
-            this.exemplarRepository.atualizaExemplar(data.estoqueId, exemplar);
+            await this.exemplarRepository.atualizaExemplar(data.estoqueId, exemplar);
 
             return emprestimo;
         }
 
-        listarEmprestimo(): EmprestimoEntity[]{
-            return this.emprestimoRepository.listaEmprestimos()
+        async listarEmprestimo(): Promise <EmprestimoEntity[]>{
+            return await this.emprestimoRepository.listaEmprestimos()
         }
 
-        realizarDevolucao(idEmprestimo: number, data: any): EmprestimoEntity {
-            const emprestimo = this.emprestimoRepository.listaEmprestimos()
-                .find(e => e.id === idEmprestimo);
+        async realizarDevolucao(idEmprestimo: number, data: any): Promise <EmprestimoEntity> {
+            const todosEmprestimos = await this.emprestimoRepository.listaEmprestimos()
+            const emprestimo =todosEmprestimos.find(e => e.id === idEmprestimo)
 
             if (!emprestimo) {
                 throw new Error("Empréstimo não encontrado.");
@@ -95,21 +94,21 @@
 
             emprestimo.dataEntrega = dataDev;
 
-            const diasAtraso = this.tempoAtraso(emprestimo);
+            const diasAtraso = await this.tempoAtraso(emprestimo);
 
-            this.colocarSuspensao(emprestimo, diasAtraso);
+            await this.colocarSuspensao(emprestimo, diasAtraso);
 
-            const exemplar = this.exemplarRepository.buscaExemplarPorCodigo(emprestimo.estoqueId);
+            const exemplar = await this.exemplarRepository.buscaExemplarPorCodigo(emprestimo.estoqueId);
             if (exemplar) {
                 exemplar.quantidadeEmprestada--;
                 exemplar.disponivel = exemplar.quantidade > exemplar.quantidadeEmprestada;
-                this.exemplarRepository.atualizaExemplar(emprestimo.estoqueId, exemplar);
+                await this.exemplarRepository.atualizaExemplar(emprestimo.estoqueId, exemplar);
             }
-
+            await this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo)
             return emprestimo;
         }
 
-        private tempoAtraso(emprestimo: EmprestimoEntity): number {
+        private async tempoAtraso(emprestimo: EmprestimoEntity):Promise< number> {
             const devolucao = new Date(emprestimo.dataDevolucao)
             const entrega = emprestimo.dataEntrega
             if (!entrega) {
@@ -141,35 +140,34 @@
                     if (suspensaoDias > 60) {
                         usuario.ativo = "suspenso";
                 } else {
-                    const emprestimosUsuario = this.emprestimoRepository.listaEmprestimos().filter((e) => e.usuarioId == usuario.id && e.suspensaoAte && new Date(e.suspensaoAte) > new Date());
-
+                    const emprestimosUsuario = (await this.emprestimoRepository.listaEmprestimos()).filter(e => e.usuarioId === usuario.id && e.suspensaoAte && new Date(e.suspensaoAte) > new Date())
                     if (emprestimosUsuario.length > 2) {
-                        usuario.ativo = "inativo";
+                        usuario.ativo = "inativo"
                     }
                 }
-                this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
+                await this.usuarioRepository.atualizaUsuario(usuario.cpf, usuario);
                 }
             }
         }
 
-         public validarSuspensoesAutomaticasEmLote(loteTamanho: number = 1000): void {
-            const emprestimos = this.emprestimoRepository.listaEmprestimos()
+         public async validarSuspensoesAutomaticasEmLote(loteTamanho: number = 1000): Promise <void> {
+            const emprestimos = await this.emprestimoRepository.listaEmprestimos()
             const emprestimosAbertos = emprestimos.filter(e => !e.dataEntrega)
 
             for (let i = 0; i < emprestimosAbertos.length; i += loteTamanho) {
-                const lote = emprestimosAbertos.slice(i, i + loteTamanho)
+            const lote = emprestimosAbertos.slice(i, i + loteTamanho);
 
-                lote.forEach((emprestimo) => {
-                    const hoje = new Date()
-                    const dataDevolucao = new Date(emprestimo.dataDevolucao)
+            for (const emprestimo of lote) {
+                const hoje = new Date();
+                const dataDevolucao = new Date(emprestimo.dataDevolucao)
 
                     if (hoje > dataDevolucao) {
                         const diasAtraso = Math.ceil((hoje.getTime() - dataDevolucao.getTime()) / (1000 * 60 * 60 * 24))
                         emprestimo.dataEntrega = hoje
-                        this.colocarSuspensao(emprestimo, diasAtraso)
-                        this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo)
+                        await this.colocarSuspensao(emprestimo, diasAtraso)
+                        await this.emprestimoRepository.atualizaEmprestimo(emprestimo.id, emprestimo)
                     }
-                })
+                }
             }
         }
 
