@@ -19,12 +19,19 @@ export class UsuarioService{
             throw new Error("Esse CPF não é válido.");
         }
 
-        if (this.usuarioRepository.buscaCpf(data.cpf)) {
-        throw new Error("Esse CPF já foi utilizado.");
+        const usuarioExistente = await this.usuarioRepository.buscaCpf(data.cpf)
+        if (usuarioExistente) {
+        throw new Error("este CPF já está cadastrado");
         }
 
-        const categorias = await this.categoriaUsuarioRepository.listar()
-        const categoriaEncontrada = categorias.some(c => c.id === data.categoriaId)
+        const categorias = await this.categoriaUsuarioRepository.listar();
+        let categoriaEncontrada = false;
+        for (let i = 0; i < categorias.length; i++) {
+            if (categorias[i].id === data.categoriaId) {
+                categoriaEncontrada = true;
+                break;
+            }
+        }
         if (!categoriaEncontrada){
         throw new Error("Categoria não existe.");
         }
@@ -41,31 +48,47 @@ export class UsuarioService{
         throw new Error("Curso não existe.")
         }
 
-        const usuario = new UsuarioEntity(undefined, data.nome, data.cpf, data.email, "ativo", data.categoriaId, data.cursoId)
-        this.usuarioRepository.cadastraUsuario(usuario)
+        const usuario = new UsuarioEntity(
+            undefined,
+            data.nome,
+            data.cpf,
+            data.email,
+            "ativo",
+            data.categoriaId,
+            data.cursoId
+        )
 
-        return usuario
+        return await this.usuarioRepository.cadastraUsuario(usuario)
     }
 
-    buscarUsuarios(): UsuarioEntity[]{
-        return this.usuarioRepository.listaUsuarios()
+    async buscarUsuarios(): Promise <UsuarioEntity[]>{
+        return await this.usuarioRepository.listaUsuarios()
     }
 
-    buscarUsuarioPorCpf(cpf: string): UsuarioEntity | undefined{
-        return this.usuarioRepository.buscaCpf(cpf)
+    async buscarUsuarioPorCpf(cpf: string): Promise <UsuarioEntity | undefined>{
+        return await this.usuarioRepository.buscaCpf(cpf)
     }
 
     async atualizarUsuario(cpf: string, data:any){
-        const usuarioExistente = this.usuarioRepository.buscaCpf(cpf);
+        const usuarioExistente = await this.usuarioRepository.buscaCpf(cpf)
+
+        if (!usuarioExistente) {
+            throw new Error("Usuário não encontrado.")
+        }
 
          if (!data.nome || !data.cpf || !data.email || !data.ativo || !data.categoriaId || !data.cursoId) {
             throw new Error("Campos obrigatórios não preenchidos")      
         }
 
         const categorias = await this.categoriaUsuarioRepository.listar()
-        const categoriaEncontrada = categorias.some(c => c.id === data.categoriaId)
-        if (!categoriaEncontrada){
-        throw new Error("Categoria não existe.");
+        let categoriaEncontrada = false
+        for (let i = 0; i < categorias.length; i++) {
+            if (categorias[i].id === data.categoriaId) {
+                categoriaEncontrada = true
+                break
+            }
+        }        if (!categoriaEncontrada){
+        throw new Error("Categoria não existe.")
         }
 
         const cursos = await this.cursoRepository.listar()
@@ -80,11 +103,8 @@ export class UsuarioService{
         throw new Error("Curso não existe.");
         }
 
-        if (!usuarioExistente) {
-            throw new Error("Usuário não encontrado.")
-        }
-        const usuarioNovo = new UsuarioEntity(usuarioExistente.id, data.nome, data.cpf, data.email, data.ativo, data.categoriaId, data.cursoId)
-        return this.usuarioRepository.atualizaUsuario(cpf, usuarioNovo)
+        const usuarioAtualizado = new UsuarioEntity(usuarioExistente.id, data.nome, usuarioExistente.cpf, data.email, data.ativo, data.categoriaId, data.cursoId)
+        await this.usuarioRepository.atualizaUsuario(cpf, usuarioAtualizado)
     }
 
     removerUsuario(cpf: string){

@@ -17,7 +17,7 @@
                 throw new Error("Dados obrigatórios do empréstimo ausentes.")
             }
 
-            const usuario = this.usuarioRepository.buscaId(data.usuarioId)
+            const usuario = await this.usuarioRepository.buscaId(data.usuarioId)
             if (!usuario || usuario.ativo !== "ativo") {
                 throw new Error("Usuário inativo/suspenso ou inexistente");
             }
@@ -122,7 +122,7 @@
             return diasAtraso
         }
 
-        private colocarSuspensao(emprestimo: EmprestimoEntity, diasAtraso: number): void {
+        private async colocarSuspensao(emprestimo: EmprestimoEntity, diasAtraso: number): Promise<void> {
             if (diasAtraso > 0) {
                 const entrega = emprestimo.dataEntrega
             
@@ -135,7 +135,7 @@
 
                 emprestimo.suspensaoAte = suspensao;
 
-                const usuario = this.usuarioRepository.buscaId(emprestimo.usuarioId);
+                const usuario = await this.usuarioRepository.buscaId(emprestimo.usuarioId);
                 
                 if (usuario) {
                     if (suspensaoDias > 60) {
