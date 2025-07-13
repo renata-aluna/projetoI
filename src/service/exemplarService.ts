@@ -1,4 +1,4 @@
-import { ExemplarEntity } from "../models/exemplarEntity";
+import { ExemplarEntity } from "../models/entity/exemplarEntity";
 import { ExemplarRepository } from "../repository/exemplarRepository";
 import { LivroRepository } from "../repository/livroRepository";
 

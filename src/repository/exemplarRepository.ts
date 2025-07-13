@@ -1,5 +1,5 @@
-import { ExemplarEntity } from "../models/exemplarEntity"
-import { LivroEntity } from "../models/livroEntity"
+import { ExemplarEntity } from "../models/entity/exemplarEntity"
+import { LivroEntity } from "../models/entity/livroEntity"
 
 export class ExemplarRepository{
     private static instance: ExemplarRepository
