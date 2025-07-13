@@ -105,7 +105,7 @@ export class LivroRepository{
     public async atualizaLivro(isbn: string, novosDados: LivroEntity): Promise<void>{
         const query = `
             UPDATE livros 
-            SET titulo = ?, autor = ?, editora = ?, edicao = ?, isbn = ?, categoria_id = ?
+            SET titulo = ?, autor = ?, editora = ?, edicao = ?, categoria_id = ?
             WHERE isbn = ?
         `;
         try {
@@ -113,9 +113,7 @@ export class LivroRepository{
                 novosDados.titulo,
                 novosDados.autor,
                 novosDados.editora,
-                novosDados.edicao,
-                novosDados.isbn,
-                novosDados.categoriaId,
+                novosDados.edicao, novosDados.categoriaId,
                 isbn
             ])
             if (resultado.affectedRows === 0) {

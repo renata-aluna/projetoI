@@ -45,8 +45,14 @@ export class LivroService{
     async atualizarLivro(isbn: string, data: any){
         const livroExistente = await this.livroRepository.buscaIsbn(isbn)
 
-        if (!data.titulo || !data.autor || !data.editora || !data.edicao || !data.isbn || !data.categoriaId){
-            throw new Error("Campos obrigatórios não preenchidos")    
+        if (
+            data.titulo === undefined &&
+            data.autor === undefined &&
+            data.editora === undefined &&
+            data.edicao === undefined &&
+            data.categoriaId === undefined
+        ) {
+            throw new Error("Nenhum campo para atualização foi fornecido");
         }
 
         if(!livroExistente){
