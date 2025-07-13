@@ -8,6 +8,8 @@ import { UsuarioController } from './../controller/usuarioController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { LivroController } from './../controller/livroController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { ExemplarController } from './../controller/exemplarController';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CursoController } from './../controller/cursoController';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { CategoriaUsuarioController } from './../controller/categoriaUsuarioController';
@@ -79,6 +81,24 @@ const models: TsoaRoute.Models = {
             "editora": {"dataType":"string"},
             "edicao": {"dataType":"string"},
             "categoriaId": {"dataType":"double"},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ExemplarCreateDto": {
+        "dataType": "refObject",
+        "properties": {
+            "livroId": {"dataType":"double","required":true},
+            "quantidade": {"dataType":"double","required":true},
+        },
+        "additionalProperties": false,
+    },
+    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+    "ExemplarUpdateDto": {
+        "dataType": "refObject",
+        "properties": {
+            "quantidade": {"dataType":"double"},
+            "disponivel": {"dataType":"boolean"},
         },
         "additionalProperties": false,
     },
@@ -411,6 +431,166 @@ export function RegisterRoutes(app: Router) {
 
               await templateService.apiHandler({
                 methodName: 'removeLivro',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsExemplarController_criaExemplar: Record<string, TsoaRoute.ParameterSchema> = {
+                dados: {"in":"body","name":"dados","required":true,"ref":"ExemplarCreateDto"},
+                success: {"in":"res","name":"201","required":true,"ref":"BasicResponseDto"},
+                error: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.post('/estoque',
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController)),
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController.prototype.criaExemplar)),
+
+            async function ExemplarController_criaExemplar(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsExemplarController_criaExemplar, request, response });
+
+                const controller = new ExemplarController();
+
+              await templateService.apiHandler({
+                methodName: 'criaExemplar',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsExemplarController_listaExemplares: Record<string, TsoaRoute.ParameterSchema> = {
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                error: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/estoque',
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController)),
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController.prototype.listaExemplares)),
+
+            async function ExemplarController_listaExemplares(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsExemplarController_listaExemplares, request, response });
+
+                const controller = new ExemplarController();
+
+              await templateService.apiHandler({
+                methodName: 'listaExemplares',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsExemplarController_buscaExemplarporCodigo: Record<string, TsoaRoute.ParameterSchema> = {
+                codigo: {"in":"path","name":"codigo","required":true,"dataType":"double"},
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                notFound: {"in":"res","name":"404","required":true,"ref":"BasicResponseDto"},
+        };
+        app.get('/estoque/:codigo',
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController)),
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController.prototype.buscaExemplarporCodigo)),
+
+            async function ExemplarController_buscaExemplarporCodigo(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsExemplarController_buscaExemplarporCodigo, request, response });
+
+                const controller = new ExemplarController();
+
+              await templateService.apiHandler({
+                methodName: 'buscaExemplarporCodigo',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsExemplarController_atualizaExemplar: Record<string, TsoaRoute.ParameterSchema> = {
+                codigo: {"in":"path","name":"codigo","required":true,"dataType":"double"},
+                dados: {"in":"body","name":"dados","required":true,"ref":"ExemplarUpdateDto"},
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                error: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.put('/estoque/:codigo',
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController)),
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController.prototype.atualizaExemplar)),
+
+            async function ExemplarController_atualizaExemplar(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsExemplarController_atualizaExemplar, request, response });
+
+                const controller = new ExemplarController();
+
+              await templateService.apiHandler({
+                methodName: 'atualizaExemplar',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        const argsExemplarController_removeExemplar: Record<string, TsoaRoute.ParameterSchema> = {
+                codigo: {"in":"path","name":"codigo","required":true,"dataType":"double"},
+                success: {"in":"res","name":"200","required":true,"ref":"BasicResponseDto"},
+                error: {"in":"res","name":"400","required":true,"ref":"BasicResponseDto"},
+        };
+        app.delete('/estoque/:codigo',
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController)),
+            ...(fetchMiddlewares<RequestHandler>(ExemplarController.prototype.removeExemplar)),
+
+            async function ExemplarController_removeExemplar(request: ExRequest, response: ExResponse, next: any) {
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args: argsExemplarController_removeExemplar, request, response });
+
+                const controller = new ExemplarController();
+
+              await templateService.apiHandler({
+                methodName: 'removeExemplar',
                 controller,
                 response,
                 next,
