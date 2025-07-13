@@ -1,4 +1,5 @@
 import { LivroEntity } from "../models/entity/livroEntity"
+import { executarComandoSQL } from "../database/mysql"
 
 export class LivroRepository{
     private static instance: LivroRepository
@@ -13,35 +14,131 @@ export class LivroRepository{
             return this.instance
     }
 
-    cadastraLivro(livro: LivroEntity): void{
-        this.livroLista.push(livro)
+    public async init(): Promise<void>{
+        await this.createTable()
     }
 
-    listaLivros(): LivroEntity[]{
-        return this.livroLista
-    }
-
-    buscaIsbn(isbn: string): LivroEntity | undefined{
-        return this.livroLista.find(l => l.isbn === isbn)
-    }
-
-    buscaId(id: number): LivroEntity | undefined{
-        return this.livroLista.find(l => l.id === id)
-    }
-
-    atualizaLivro(isbn: string, novosDados: LivroEntity){
-        const index = this.livroLista.findIndex( l => l.isbn === isbn)
-        if(index === -1){
-             throw new Error ("Livro não encontrado!")
+    private async createTable(): Promise<void> {
+        const query = `
+            CREATE TABLE IF NOT EXISTS livros (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                titulo VARCHAR(255) NOT NULL,
+                autor VARCHAR(255) NOT NULL,
+                editora VARCHAR(255) NOT NULL,
+                edicao VARCHAR(50) NOT NULL,
+                isbn VARCHAR(20) NOT NULL UNIQUE,
+                categoria_id INT NOT NULL,
+                FOREIGN KEY (categoria_id) REFERENCES categorias_livro(id)
+            )
+        `
+        try {
+            await executarComandoSQL(query, [])
+            console.log("Tabela 'livros' criada com sucesso!!")
+        } catch (error) {
+            console.error("Erro ao criar a tabela 'livros':", error)
+            throw error
         }
-        this.livroLista[index] = novosDados
     }
 
-    removeLivro(isbn: string): void {
-        const index = this.livroLista.findIndex(l => l.isbn === isbn)
-        if(index === -1){
-            throw new Error("Livro não encontrado!")
+    public async cadastraLivro(livro: LivroEntity): Promise<LivroEntity>{
+        const query = `
+            INSERT INTO livros (titulo, autor, editora, edicao, isbn, categoria_id)
+            VALUES (?, ?, ?, ?, ?, ?)
+        `
+        try {
+            const result = await executarComandoSQL(query, [
+                livro.titulo,
+                livro.autor,
+                livro.editora,
+                livro.edicao,
+                livro.isbn,
+                livro.categoriaId
+            ])
+            const id = result.insertId
+            return new LivroEntity(
+                id,
+                livro.titulo,
+                livro.autor,
+                livro.editora,
+                livro.edicao,
+                livro.isbn,
+                livro.categoriaId
+            )
+        } catch (error) {
+            console.error("Erro ao cadastrar livro:", error)
+            throw error
         }
-        this.livroLista.splice(index, 1)
+    }
+
+    public async listaLivros(): Promise <LivroEntity[]>{
+         const query = "SELECT * FROM livros"
+        const result = await executarComandoSQL(query, []);
+        return result.map((row: any) => new LivroEntity(
+            row.id,
+            row.titulo,
+            row.autor,
+            row.editora,
+            row.edicao,
+            row.isbn,
+            row.categoria_id
+        ))
+    }
+
+    public async buscaIsbn(isbn: string): Promise <LivroEntity | undefined>{
+        const query = "SELECT * FROM livros WHERE isbn = ?"
+        const resultado: any[] = await executarComandoSQL(query, [isbn])
+        if (resultado.length === 0) return undefined
+
+        const row = resultado[0];
+        return new LivroEntity(row.id, row.titulo, row.autor, row.editora,row.edicao, row.isbn, row.categoria_id)
+    }
+    
+    public async buscaId(id: number): Promise <LivroEntity | undefined>{
+        const query = "SELECT * FROM livros WHERE id = ?"
+        const resultado: any[] = await executarComandoSQL(query, [id])
+        if (resultado.length === 0) return undefined
+
+        const row = resultado[0];
+        return new LivroEntity(row.id, row.titulo, row.autor, row.editora,row.edicao, row.isbn, row.categoria_id)
+    }
+
+    public async atualizaLivro(isbn: string, novosDados: LivroEntity): Promise<void>{
+        const query = `
+            UPDATE livros 
+            SET titulo = ?, autor = ?, editora = ?, edicao = ?, isbn = ?, categoria_id = ?
+            WHERE isbn = ?
+        `;
+        try {
+            const resultado = await executarComandoSQL(query, [
+                novosDados.titulo,
+                novosDados.autor,
+                novosDados.editora,
+                novosDados.edicao,
+                novosDados.isbn,
+                novosDados.categoriaId,
+                isbn
+            ])
+            if (resultado.affectedRows === 0) {
+                throw new Error("Livro não encontrado para atualização.")
+            }
+            console.log("Livro atualizado com sucesso:", isbn)
+        } catch (error) {
+            console.error("Erro ao atualizar livro:", error)
+            throw error
+        }
+    }
+
+    public async removeLivro(isbn: string): Promise<void> {
+        const query = "DELETE FROM livros WHERE isbn = ?"
+        try {
+            const resultado = await executarComandoSQL(query, [isbn])
+            if (resultado.affectedRows === 0) {
+                throw new Error("Livro não encontrado para remoção.")
+            }
+            console.log("Livro removido com sucesso:", isbn)
+        } catch (error) {
+            console.error("Erro ao remover livro:", error)
+            throw error
+        }
     }
 }

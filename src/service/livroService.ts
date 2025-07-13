@@ -12,40 +12,38 @@ export class LivroService{
         }
 
         const categorias = await this.categoriaRepository.listar();
-        let categoriaEncontrada = false;
+        let categoriaEncontrada = false
         for (let i = 0; i < categorias.length; i++) {
             if (categorias[i].id === data.categoriaId) {
-                categoriaEncontrada = true;
-                break;
+                categoriaEncontrada = true
+                break
             }
         }
         if (!categoriaEncontrada) {
-            throw new Error("Categoria não existe!");
+            throw new Error("Categoria não existe!")
         }
 
-        const livros = await this.livroRepository.listaLivros(); 
-        const combinado = livros.find(livro => livro.autor == data.autor && livro.editora === data.editora && livro.edicao == data.edicao);
+        const livros = await this.livroRepository.listaLivros()
+        const combinado = livros.find(livro => livro.autor == data.autor && livro.editora === data.editora && livro.edicao == data.edicao)
 
         if (combinado) {
-            throw new Error("Já existe livro com essa combinação de autor, editora e edição.");
+            throw new Error("Já existe livro com essa combinação de autor, editora e edição.")
         }
 
         const livro = new LivroEntity (undefined, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId)
-        this.livroRepository.cadastraLivro(livro)
-
-        return livro
+        return await this.livroRepository.cadastraLivro(livro)
     }
 
-    buscarLivro(): LivroEntity[]{
-        return this.livroRepository.listaLivros()
+    async buscarLivro(): Promise<LivroEntity[]>{
+        return await this.livroRepository.listaLivros()
     }
 
-    buscarLivroPorIsbn(isbn: string): LivroEntity | undefined{
-        return this.livroRepository.buscaIsbn(isbn)
+    async buscarLivroPorIsbn(isbn: string): Promise <LivroEntity | undefined>{
+        return await this.livroRepository.buscaIsbn(isbn)
     }
 
     async atualizarLivro(isbn: string, data: any){
-        const livroExistente = this.livroRepository.buscaIsbn(isbn)
+        const livroExistente = await this.livroRepository.buscaIsbn(isbn)
 
         if (!data.titulo || !data.autor || !data.editora || !data.edicao || !data.isbn || !data.categoriaId){
             throw new Error("Campos obrigatórios não preenchidos")    
@@ -55,20 +53,23 @@ export class LivroService{
             throw new Error ("Livro não encontrado.")
         }
 
-        const categorias = await this.categoriaRepository.listar();
-        let categoriaEncontrada = false;
+        const categorias = await this.categoriaRepository.listar()
+        let categoriaEncontrada = false
         for (let i = 0; i < categorias.length; i++) {
             if (categorias[i].id === data.categoriaId) {
-                categoriaEncontrada = true;
-                break;
+                categoriaEncontrada = true
+                break
             }
+        }
+        if (!categoriaEncontrada) {
+            throw new Error("Categoria não existe!")
         }
         
         const livroNovo = new LivroEntity(livroExistente.id, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId)
         return this.livroRepository.atualizaLivro(isbn, livroNovo)
     }
 
-    removerLivro(isbn: string){
-        this.livroRepository.removeLivro(isbn)
+    async removerLivro(isbn: string): Promise <void>{
+        await this.livroRepository.removeLivro(isbn)
     }
 }
