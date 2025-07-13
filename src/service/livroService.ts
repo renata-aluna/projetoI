@@ -1,20 +1,29 @@
 import { LivroEntity } from "../models/entity/livroEntity";
-import { categoriasLivro } from "../repository/categoriaLivroRepository";
+import { CategoriaLivroRepository } from "../repository/categoriaLivroRepository";
 import { LivroRepository } from "../repository/livroRepository";
 
 export class LivroService{
     private livroRepository = LivroRepository.getInstance()
+    private categoriaRepository = CategoriaLivroRepository.getInstance()
 
-    novoLivro(data: any): LivroEntity{
+    async novoLivro(data: any): Promise<LivroEntity>{
         if (!data.titulo || !data.autor || !data.editora || !data.edicao || !data.isbn || !data.categoriaId){
             throw new Error("Campos obrigatórios não preenchidos")    
         }
 
-        if (!categoriasLivro.find(categoria => categoria.id === data.categoriaId)){
-            throw new Error("Categoria não existe!!!");
+        const categorias = await this.categoriaRepository.listar();
+        let categoriaEncontrada = false;
+        for (let i = 0; i < categorias.length; i++) {
+            if (categorias[i].id === data.categoriaId) {
+                categoriaEncontrada = true;
+                break;
+            }
+        }
+        if (!categoriaEncontrada) {
+            throw new Error("Categoria não existe!");
         }
 
-        const livros = this.livroRepository.listaLivros(); 
+        const livros = await this.livroRepository.listaLivros(); 
         const combinado = livros.find(livro => livro.autor == data.autor && livro.editora === data.editora && livro.edicao == data.edicao);
 
         if (combinado) {
@@ -35,7 +44,7 @@ export class LivroService{
         return this.livroRepository.buscaIsbn(isbn)
     }
 
-    atualizarLivro(isbn: string, data: any){
+    async atualizarLivro(isbn: string, data: any){
         const livroExistente = this.livroRepository.buscaIsbn(isbn)
 
         if (!data.titulo || !data.autor || !data.editora || !data.edicao || !data.isbn || !data.categoriaId){
@@ -46,8 +55,13 @@ export class LivroService{
             throw new Error ("Livro não encontrado.")
         }
 
-        if (!categoriasLivro.find(categoria => categoria.id === data.categoriaId)){
-            throw new Error("Categoria não existe!!!");
+        const categorias = await this.categoriaRepository.listar();
+        let categoriaEncontrada = false;
+        for (let i = 0; i < categorias.length; i++) {
+            if (categorias[i].id === data.categoriaId) {
+                categoriaEncontrada = true;
+                break;
+            }
         }
         
         const livroNovo = new LivroEntity(livroExistente.id, data.titulo, data.autor, data.editora, data.edicao, data.isbn, data.categoriaId)

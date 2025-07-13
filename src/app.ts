@@ -6,6 +6,7 @@ import { CategoriaUsuarioController } from "./controller/categoriaUsuarioControl
 import { CategoriaLivroController } from "./controller/categoriaLivroController"
 import { CursoController } from "./controller/cursoController"
 import { EmprestimoController } from "./controller/emprestimoController"
+import { inicializarTabelas } from "./database/inicializador"
 
 const usuarioController = new UsuarioController()
 const livroController = new LivroController()
@@ -18,7 +19,7 @@ const cursoController =new CursoController()
 
 const app = express()
 
-const PORT = process.env.PORT ?? 3090
+const PORT = 3090
 app.use(express.json())
 
 app.post("/library/usuarios", usuarioController.criaUsuario.bind(usuarioController))
@@ -49,5 +50,13 @@ app.get("/library/catalogos/categorias-livro", categoriaLivroController.listaCat
 app.get("/library/catalogos/cursos", cursoController.listarCursos.bind(cursoController))
 
 
+async function inicarAplicacoes() {
+        await inicializarTabelas()
+        app.listen(PORT, () => { console.log(`Servidor rodando em http://localhost:${PORT}/library`)})
+}
 
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}. http://localhost:3090`))
+inicarAplicacoes().catch((err) => {
+  console.error("Erro ao iniciar o servidor:", err)
+})
+
+import './database/mysql';

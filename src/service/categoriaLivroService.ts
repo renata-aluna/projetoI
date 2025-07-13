@@ -1,7 +1,10 @@
-import { categoriasLivro } from "../repository/categoriaLivroRepository";
+import { CategoriaLivroRepository } from "../repository/categoriaLivroRepository"
 
-export class CategoriaLivroService{
-    listarCategoriasLivros(){
-        return categoriasLivro
+const categoriaLivroRepository = CategoriaLivroRepository.getInstance()
+
+export class CategoriaLivroService {
+    listarCategoriasLivros() {
+       return categoriaLivroRepository.listar()
     }
+
 }
