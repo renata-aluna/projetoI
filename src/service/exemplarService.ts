@@ -6,49 +6,47 @@ export class ExemplarService{
     private exemplarRepository = ExemplarRepository.getInstance()
     private livroRepository = LivroRepository.getInstance()
 
-    novoExemplar(data: any): ExemplarEntity{
+    async novoExemplar(data: any): Promise <ExemplarEntity>{
         if (data.livroId === undefined || data.quantidade === undefined || data.quantidadeEmprestada === undefined) {
-            throw new Error("Campos obrigatórios não preenchidos");
+            throw new Error("Campos obrigatórios não preenchidos")
         }
 
-        const livro = this.livroRepository.buscaId(data.livroId);
+        const livro = this.livroRepository.buscaId(data.livroId)
         if (!livro) {
-            throw new Error("Livro vinculado não encontrado.");
+            throw new Error("Livro vinculado não encontrado.")
         }
 
         if(data.quantidadeEmprestada > data.quantidade){
             throw new Error("Quantidade emprestada não pode ser maior que a quantidade total")
         }
 
-        const disponivel = data.quantidade > data.quantidadeEmprestada;
+        const disponivel = data.quantidade > data.quantidadeEmprestada
         
         const exemplar = new ExemplarEntity(undefined, data.livroId, data.quantidade, data.quantidadeEmprestada, disponivel)
         
-        this.exemplarRepository.cadastraExemplar(exemplar)
-        
-        return exemplar
+        return await this.exemplarRepository.cadastraExemplar(exemplar)
     }
 
-    listarExemplares(): ExemplarEntity[]{
-        return this.exemplarRepository.listaExemplares()
+    async listarExemplares(): Promise <ExemplarEntity[]>{
+        return await this.exemplarRepository.listaExemplares()
     }
 
-    buscarExemplarPorCodigo(codigo: number): ExemplarEntity | undefined{
-        return this.exemplarRepository.buscaExemplarPorCodigo(codigo)
+    async buscarExemplarPorCodigo(codigo: number):Promise <ExemplarEntity | undefined>{
+        return await this.exemplarRepository.buscaExemplarPorCodigo(codigo)
     }
 
-    atualizarExemplar(codigo: number, data: any){
-        const exemplarExistente = this.exemplarRepository.buscaExemplarPorCodigo(codigo)
+    async atualizarExemplar(codigo: number, data: any): Promise <void>{
+        const exemplarExistente = await this.exemplarRepository.buscaExemplarPorCodigo(codigo)
 
         if (data.livroId === undefined || data.quantidade === undefined || data.quantidadeEmprestada === undefined) {
-            throw new Error("Campos obrigatórios não preenchidos");
+            throw new Error("Campos obrigatórios não preenchidos")
         }
 
         if(!exemplarExistente){
             throw new Error ("Exemplar não encontrado.")
         }
 
-        const livro = this.livroRepository.buscaId(data.livroId);
+        const livro = await this.livroRepository.buscaId(data.livroId);
         if (!livro) {
             throw new Error("Livro vinculado não encontrado.");
         }
@@ -60,10 +58,10 @@ export class ExemplarService{
         const disponivel = data.quantidade > data.quantidadeEmprestada;
         
         const exemplarNovo = new ExemplarEntity(exemplarExistente.codigo,data.livroId, data.quantidade, data.quantidadeEmprestada, disponivel)
-        return this.exemplarRepository.atualizaExemplar(codigo, exemplarNovo)
+       await this.exemplarRepository.atualizaExemplar(codigo, exemplarNovo)
     }
-    removerExemplar(codigo: number){
-        this.exemplarRepository.removeExemplar(codigo)
+    async removerExemplar(codigo: number):Promise <void>{
+        await this.exemplarRepository.removeExemplar(codigo)
     }
 
 }
