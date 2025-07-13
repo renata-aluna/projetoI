@@ -1,7 +1,9 @@
-import { cursos } from "../repository/cursoRepository";
+import { CursoRepository } from "../repository/cursoRepository"
+
+const cursoRepository = CursoRepository.getInstance()
 
 export class CursoService{
     listaCursos(){
-        return cursos
+        return cursoRepository.listar()
     }
 }

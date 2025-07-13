@@ -1,13 +1,14 @@
 import { UsuarioEntity } from "../models/entity/usuarioEntity"
-import { CategoriaUsuarioRepository } from "../repository/categoriaUsuarioRepository";
-import { cursos } from "../repository/cursoRepository";
+import { CategoriaUsuarioRepository } from "../repository/categoriaUsuarioRepository"
+import { CursoRepository } from "../repository/cursoRepository"
 import { UsuarioRepository } from "../repository/usuarioRepository"
 
 export class UsuarioService{
     private usuarioRepository = UsuarioRepository.getInstance()
-    private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance();
+    private categoriaUsuarioRepository = CategoriaUsuarioRepository.getInstance()
+    private cursoRepository = CursoRepository.getInstance()
 
-    
+
 
     async novoUsuario(data: any): Promise <UsuarioEntity>{
         if (!data.nome || !data.cpf || !data.email || !data.categoriaId || !data.cursoId) {
@@ -28,8 +29,16 @@ export class UsuarioService{
         throw new Error("Categoria não existe.");
         }
 
-        if (!cursos.find(curso => curso.id === data.cursoId)) {
-        throw new Error("Curso não existe.");
+        const cursos = await this.cursoRepository.listar()
+        let cursoEncontrado = false
+        for (let i = 0; i < cursos.length; i++) {
+            if (cursos[i].id === data.cursoId) {
+                cursoEncontrado = true
+                break
+            }
+        }
+        if (!cursoEncontrado) {
+        throw new Error("Curso não existe.")
         }
 
         const usuario = new UsuarioEntity(undefined, data.nome, data.cpf, data.email, "ativo", data.categoriaId, data.cursoId)
@@ -59,7 +68,15 @@ export class UsuarioService{
         throw new Error("Categoria não existe.");
         }
 
-        if (!cursos.find(curso => curso.id === data.cursoId)) {
+        const cursos = await this.cursoRepository.listar()
+        let cursoEncontrado = false
+        for (let i = 0; i < cursos.length; i++) {
+            if (cursos[i].id === data.cursoId) {
+                cursoEncontrado = true
+                break
+            }
+        }
+        if (!cursoEncontrado) {
         throw new Error("Curso não existe.");
         }
 
