@@ -1,4 +1,4 @@
-import { CursoEntity } from "../models/cursoEntity";
+import { CursoEntity } from "../models/entity/cursoEntity";
 
 export const cursos: CursoEntity[] = 
 [

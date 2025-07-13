@@ -1,4 +1,4 @@
-import { CategoriaUsuarioEntity } from "../models/categoriaUsuarioEntity";
+import { CategoriaUsuarioEntity } from "../models/entity/categoriaUsuarioEntity";
 
 export const categoriasUsuario: CategoriaUsuarioEntity[] =
 [

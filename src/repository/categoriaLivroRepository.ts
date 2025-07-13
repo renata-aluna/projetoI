@@ -1,4 +1,4 @@
-import { CategoriaLivroEntity } from "../models/categoriaLivroEntity";
+import { CategoriaLivroEntity } from "../models/entity/categoriaLivroEntity";
 
 export const categoriasLivro : CategoriaLivroEntity[] =
 [
