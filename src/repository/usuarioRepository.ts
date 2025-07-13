@@ -105,15 +105,15 @@ export class UsuarioRepository{
 
     async atualizaUsuario(cpf: string, novosDados: UsuarioEntity): Promise<boolean> {
         const query = `
-            UPDATE usuarios SET nome = ?, email = ?, ativo = ?, categoriaId = ?, cursoId = ?
+            UPDATE usuarios SET nome = ?, email = ?, categoriaId = ?, cursoId = ?, ativo = ?
             WHERE cpf = ?
         `
         const valores = [
             novosDados.nome,
             novosDados.email,
-            novosDados.ativo,
             novosDados.categoriaId,
             novosDados.cursoId,
+            novosDados.ativo,
             cpf
         ];
 

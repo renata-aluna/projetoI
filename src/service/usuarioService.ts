@@ -76,8 +76,14 @@ export class UsuarioService{
             throw new Error("Usuário não encontrado.")
         }
 
-         if (!data.nome || !data.cpf || !data.email || !data.ativo || !data.categoriaId || !data.cursoId) {
-            throw new Error("Campos obrigatórios não preenchidos")      
+         if (
+            data.nome === undefined &&
+            data.email === undefined &&
+            data.categoriaId === undefined &&
+            data.cursoId === undefined &&
+            data.ativo === undefined
+            ) {
+            throw new Error("Nenhum dado foi informado para atualizar")      
         }
 
         const categorias = await this.categoriaUsuarioRepository.listar()
